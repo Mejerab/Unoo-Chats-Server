@@ -3,7 +3,6 @@ const app = express();
 const port = process.env.PORT || 5000;
 const cors = require('cors')
 const jwt = require('jsonwebtoken');
-const dayjs = require('dayjs');
 require('dotenv').config();
 const cookieParser = require('cookie-parser');
 const http = require('http');
@@ -15,6 +14,8 @@ app.use(cors({
     origin: [
         'http://localhost:5173',
         'https://unoo-chats.onrender.com',
+        'https://unoo-chats-ac24a.web.app',
+        'https://unoo-chats-ac24a.firebaseapp.com'
     ], credentials: true
 }))
 app.use(express.json())
