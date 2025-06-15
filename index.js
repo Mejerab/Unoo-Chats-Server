@@ -5,7 +5,8 @@ const cors = require('cors')
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
 const cookieParser = require('cookie-parser');
-const http = require('http');
+const fs = require("fs");
+const https = require('https');
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const { Server } = require('socket.io');
 const { v4: uuid } = require('uuid');
@@ -13,25 +14,25 @@ const { v4: uuid } = require('uuid');
 app.use(cors({
     origin: [
         'http://localhost:5173',
-        'https://unoo-chats.onrender.com',
         'https://unoo-chats-ac24a.web.app',
         'https://unoo-chats-ac24a.firebaseapp.com'
-    ], credentials: true
+    ],
+    methods: ['GET', 'POST', 'PATCH', 'DELETE'],
+    credentials: true
 }))
 app.use(express.json())
 app.use(cookieParser())
 
 
-const server = http.createServer(app);
+const server = https.createServer({
+    key: fs.readFileSync("key.pem"),
+    cert: fs.readFileSync("cert.pem")
+}, app);
 const io = new Server(server, {
     cors: {
-        origin: [
-            'http://localhost:5173',
-            'https://unoo-chats.onrender.com',
-            'https://unoo-chats-ac24a.web.app',
-            'https://unoo-chats-ac24a.firebaseapp.com/'
-        ],
-        methods: ['GET', 'POST', "PATCH"]
+        origin: 'https://unoo-chats-ac24a.web.app',
+        methods: ['GET', 'POST', "PATCH", 'DELETE'],
+        credentials: true
     }
 });
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.xegw8vb.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
