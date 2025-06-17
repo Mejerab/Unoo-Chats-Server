@@ -5,33 +5,26 @@ const cors = require('cors')
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
 const cookieParser = require('cookie-parser');
-const fs = require("fs");
-const https = require('https');
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const { Server } = require('socket.io');
 const { v4: uuid } = require('uuid');
-
 app.use(cors({
-    origin: [
-        'http://localhost:5173',
-        'https://unoo-chats-ac24a.web.app',
-        'https://unoo-chats-ac24a.firebaseapp.com'
-    ],
-    methods: ['GET', 'POST', 'PATCH', 'DELETE'],
-    credentials: true
+    origin: '*' 
+    // [
+    //     'http://localhost:5173',
+    //     'https://unoo-chats-ac24a.web.app',
+    //     'https://unoo-chats-ac24a.firebaseapp.com'
+    // ]
+    , credentials: true
 }))
 app.use(express.json())
 app.use(cookieParser())
 
-
-const server = https.createServer({
-    key: fs.readFileSync("key.pem"),
-    cert: fs.readFileSync("cert.pem")
-}, app);
+const server = app.listen(port);
 const io = new Server(server, {
     cors: {
-        origin: 'https://unoo-chats-ac24a.web.app',
-        methods: ['GET', 'POST', "PATCH", 'DELETE'],
+        origin: '*',
+        methods: ['GET', 'POST', "PATCH"],
         credentials: true
     }
 });
@@ -49,11 +42,11 @@ const client = new MongoClient(uri, {
 const verifyToken = (req, res, next) => {
     const token = req.cookies.token;
     if (!token) {
-        res.status(401).send({ message: 'Unauthorized Access' });
+        return res.status(401).send({ message: 'Unauthorized Access' });
     }
     jwt.verify(token, process.env.TOKEN_SECRET, (err, decode) => {
         if (err) {
-            res.status(403).send({ message: 'Forbidden Access' });
+            return res.status(403).send({ message: 'Forbidden Access' });
         }
         req.decode = decode;
         next();
@@ -82,6 +75,7 @@ async function run() {
             res.cookie('token', token, cookieOptions).send({ success: true });
         })
         app.post('/logout', (req, res) => {
+            console.log('nothing');
             res.clearCookie('token', { ...cookieOptions, maxAge: 0 }).send({ condition: 'logged out' });
         })
 
@@ -236,13 +230,13 @@ run().catch(console.dir);
 
 
 app.get('/', (req, res) => {
-    res.send('Unoo is running anyway.');
+    res.send('Unoo is running.');
 })
 
 // app.listen(port, () => {
 //     console.log('Server is Alright');
 // })
-server.listen(port, () => {
+app.listen(port, () => {
     console.log('Server is running');
 
 })
