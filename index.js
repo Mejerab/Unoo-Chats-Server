@@ -24,8 +24,8 @@ const server = app.listen(port);
 const io = new Server(server, {
     cors: {
         origin:
-            'http://localhost:5173'
-        // 'https://unoo-chats-ac24a.web.app'
+            // 'http://localhost:5173'
+        'https://unoo-chats-ac24a.web.app'
         ,
         methods: ['GET', 'POST', "PATCH"],
         credentials: true
