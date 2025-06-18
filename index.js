@@ -10,11 +10,11 @@ const { Server } = require('socket.io');
 const { v4: uuid } = require('uuid');
 app.use(cors({
     origin:
-    [
-        'http://localhost:5173',
-        'https://unoo-chats-ac24a.web.app',
-        'https://unoo-chats-ac24a.firebaseapp.com'
-    ]
+        [
+            'http://localhost:5173',
+            'https://unoo-chats-ac24a.web.app',
+            'https://unoo-chats-ac24a.firebaseapp.com'
+        ]
     , credentials: true
 }))
 app.use(express.json())
@@ -23,8 +23,8 @@ app.use(cookieParser())
 const server = app.listen(port);
 const io = new Server(server, {
     cors: {
-        origin: 
-        'http://localhost:5173'
+        origin:
+            'http://localhost:5173'
         // 'https://unoo-chats-ac24a.web.app'
         ,
         methods: ['GET', 'POST', "PATCH"],
@@ -78,16 +78,11 @@ async function run() {
             res.cookie('token', token, cookieOptions).send({ success: true });
         })
         app.post('/logout', (req, res) => {
-            console.log('nothing');
             res.clearCookie('token', { ...cookieOptions, maxAge: 0 }).send({ condition: 'logged out' });
         })
 
         // Chats
 
-        app.get('/chats', async (req, res) => {
-            const result = await chatCollection.find().toArray();
-            res.send(result);
-        })
         app.get('/chats/source/:source', verifyToken, async (req, res) => {
             const { email } = req.query;
             if (req?.decode?.email !== email) {
@@ -186,16 +181,28 @@ async function run() {
             const result = await userCollection.insertOne(data);
             res.send(result);
         })
-        app.get('/users', async (req, res) => {
+        app.get('/users', verifyToken, async (req, res) => {
+            const { email } = req.query;
+            if (req?.decode?.email !== email) {
+                res.status(403).send({ message: 'Forbidden Access' })
+            }
             const result = await userCollection.find().toArray();
             res.send(result);
         })
-        app.get('/users/uid/:uid', async (req, res) => {
+        app.get('/users/uid/:uid', verifyToken, async (req, res) => {
+            const { email } = req.query;
+            if (req?.decode?.email !== email) {
+                res.status(403).send({ message: 'Forbidden Access' })
+            }
             const uid = req.params.uid;
             const result = await userCollection.findOne({ uid });
             res.send(result);
         })
-        app.patch('/users/patch/:id', async (req, res) => {
+        app.patch('/users/patch/:id', verifyToken, async (req, res) => {
+            const { email } = req.query;
+            if (req?.decode?.email !== email) {
+                res.status(403).send({ message: 'Forbidden Access' })
+            }
             const id = req.params.id;
             const data = req.body;
             const filter = { _id: new ObjectId(id) };
@@ -208,14 +215,11 @@ async function run() {
             const result = await userCollection.updateOne(filter, updateDoc, options);
             res.send(result);
         })
-        app.get('/users/id/:id', async (req, res) => {
-            const id = req.params.id;
-            const query = { _id: new ObjectId(id) };
-            const result = await userCollection.findOne(query);
-            res.send(result);
-        })
-        app.get('/users/:email', async (req, res) => {
-            const email = req.params.email;
+        app.get('/users/:email', verifyToken, async (req, res) => {
+            const { email } = req.params;
+            if (req?.decode?.email !== email) {
+                res.status(403).send({ message: 'Forbidden Access' })
+            }
             const query = { email };
             const result = await userCollection.findOne(query);
             res.send(result);
