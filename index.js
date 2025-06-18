@@ -9,12 +9,12 @@ const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const { Server } = require('socket.io');
 const { v4: uuid } = require('uuid');
 app.use(cors({
-    origin: '*' 
-    // [
-    //     'http://localhost:5173',
-    //     'https://unoo-chats-ac24a.web.app',
-    //     'https://unoo-chats-ac24a.firebaseapp.com'
-    // ]
+    origin:
+    [
+        'http://localhost:5173',
+        'https://unoo-chats-ac24a.web.app',
+        'https://unoo-chats-ac24a.firebaseapp.com'
+    ]
     , credentials: true
 }))
 app.use(express.json())
@@ -23,7 +23,10 @@ app.use(cookieParser())
 const server = app.listen(port);
 const io = new Server(server, {
     cors: {
-        origin: '*',
+        origin: 
+        'http://localhost:5173'
+        // 'https://unoo-chats-ac24a.web.app'
+        ,
         methods: ['GET', 'POST', "PATCH"],
         credentials: true
     }
