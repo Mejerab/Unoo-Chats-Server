@@ -24,8 +24,8 @@ const server = app.listen(port);
 const io = new Server(server, {
     cors: {
         origin:
-            // 'http://localhost:5173'
-        'https://unoo-chats-ac24a.web.app'
+            'http://localhost:5173'
+        // 'https://unoo-chats-ac24a.web.app'
         ,
         methods: ['GET', 'POST', "PATCH"],
         credentials: true
@@ -181,11 +181,7 @@ async function run() {
             const result = await userCollection.insertOne(data);
             res.send(result);
         })
-        app.get('/users', verifyToken, async (req, res) => {
-            const { email } = req.query;
-            if (req?.decode?.email !== email) {
-                res.status(403).send({ message: 'Forbidden Access' })
-            }
+        app.get('/users', async (req, res) => {
             const result = await userCollection.find().toArray();
             res.send(result);
         })
@@ -215,11 +211,8 @@ async function run() {
             const result = await userCollection.updateOne(filter, updateDoc, options);
             res.send(result);
         })
-        app.get('/users/:email', verifyToken, async (req, res) => {
+        app.get('/users/:email', async (req, res) => {
             const { email } = req.params;
-            if (req?.decode?.email !== email) {
-                res.status(403).send({ message: 'Forbidden Access' })
-            }
             const query = { email };
             const result = await userCollection.findOne(query);
             res.send(result);
